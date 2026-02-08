@@ -239,7 +239,7 @@ After successful updates:
 PLAN DOCUMENT UPDATED
 ━━━━━━━━━━━━━━━━━━━━━
 
-File: docs/feature-plan.md
+File: docs/plans/NNN-feature/plan.md
 Phase: 2A - Backend API
 
 Updates applied:
@@ -267,7 +267,7 @@ Proceeding to generate commit message...
 
 Error: Plan file not found at specified path
 
-Expected: docs/feature-plan.md
+Expected: docs/plans/NNN-feature/plan.md
 Actual: File does not exist
 
 Action Required:

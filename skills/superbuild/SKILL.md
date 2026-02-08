@@ -100,7 +100,7 @@ This confirms the plan is in the expected format with:
 I'll help you execute your implementation plan.
 
 Please provide the plan document:
-1. Path to plan file (e.g., docs/feature-plan.md)
+1. Path to plan file (e.g., docs/plans/001-feature/plan.md)
 2. Paste the plan content directly
 
 Which would you prefer?

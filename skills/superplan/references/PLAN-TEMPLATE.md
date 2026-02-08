@@ -1,6 +1,6 @@
 # Plan Template Reference
 
-This is the complete template for `docs/<feature-name>-plan.md` files.
+This is the complete template for `docs/plans/NNN-feature-short-name/plan.md` files.
 
 Copy and adapt this template when creating new implementation plans.
 
@@ -1263,10 +1263,10 @@ For large plans, write in chunks to avoid context issues.
 
 ### When to Use Multiple Files
 
-Plans exceeding ~20,000 tokens (~4,000 lines) should be split into multiple files to avoid read errors:
-- `<feature>-plan-1.md`: Overview, Requirements, Research, Architecture
-- `<feature>-plan-2.md`: Phase 0 and Phase 1 (parallelizable phases)
-- `<feature>-plan-N.md`: Remaining phases, Testing, Assumptions, Appendix
+Plans exceeding ~20,000 tokens (~4,000 lines) should be split into multiple files within the same plan directory:
+- `plan-1.md`: Overview, Requirements, Research, Architecture
+- `plan-2.md`: Phase 0 and Phase 1 (parallelizable phases)
+- `plan-N.md`: Remaining phases, Testing, Assumptions, Appendix
 
 ### Multi-File Header
 
@@ -1275,9 +1275,9 @@ Each file in a split plan should include:
 ```markdown
 # [Feature Name] Implementation Plan - Part [N] of [Total]
 
-> **Plan Set**: `docs/<feature>-plan-*.md`
+> **Plan Directory**: `docs/plans/NNN-feature-short-name/`
 > **This File**: Part [N] - [Section Names]
-> **Navigation**: [Part 1](feature-plan-1.md) | [Part 2](feature-plan-2.md) | ...
+> **Navigation**: [Part 1](plan-1.md) | [Part 2](plan-2.md) | ...
 >
 > Generated: [DATE]
 > Status: Draft | In Review | Approved | In Progress | Complete
