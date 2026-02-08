@@ -1,6 +1,6 @@
 # Plan Template Reference
 
-This is the complete template for `docs/plans/NNN-feature-short-name/plan.md` files.
+This is the complete template for `plans/NNN-feature-short-name/plan.md` files.
 
 Copy and adapt this template when creating new implementation plans.
 
@@ -1275,7 +1275,7 @@ Each file in a split plan should include:
 ```markdown
 # [Feature Name] Implementation Plan - Part [N] of [Total]
 
-> **Plan Directory**: `docs/plans/NNN-feature-short-name/`
+> **Plan Directory**: `plans/NNN-feature-short-name/`
 > **This File**: Part [N] - [Section Names]
 > **Navigation**: [Part 1](plan-1.md) | [Part 2](plan-2.md) | ...
 >

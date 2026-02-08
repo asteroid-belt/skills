@@ -36,7 +36,7 @@ Superplan creates detailed, executable implementation plans that enable parallel
 │  8. PHASE           →  Break into parallelizable phases + ESTIMATES │
 │  9. DETAIL          →  Specify code deltas per phase                │
 │ 10. TEST            →  Define failing tests per phase (TDD)         │
-│ 11. DOCUMENT        →  Write plan to docs/plans/NNN-feature/plan.md │
+│ 11. DOCUMENT        →  Write plan to plans/NNN-feature/plan.md │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -332,10 +332,10 @@ Files changed:
 
 ### Directory Naming Convention
 
-Plans live in numbered subdirectories under `docs/plans/`:
+Plans live in numbered subdirectories under `plans/`:
 
 ```
-docs/plans/
+plans/
   001-auth-system/
     plan.md
   002-user-dashboard/
@@ -346,20 +346,20 @@ docs/plans/
 ```
 
 **To determine the next number:**
-1. List existing directories in `docs/plans/`
+1. List existing directories in `plans/`
 2. Find the highest NNN prefix
 3. Increment by 1, zero-padded to 3 digits
-4. If no `docs/plans/` exists, start at `001`
+4. If no `plans/` exists, start at `001`
 
 **Slug format:** lowercase, hyphen-separated short name (e.g., `001-auth-system`, `002-add-search`)
 
 ### Write the Plan
 
 ```bash
-mkdir -p docs/plans/NNN-feature-short-name/
+mkdir -p plans/NNN-feature-short-name/
 ```
 
-Write the complete plan to `docs/plans/NNN-feature-short-name/plan.md`.
+Write the complete plan to `plans/NNN-feature-short-name/plan.md`.
 
 > **STOP. Read [Plan Template](references/PLAN-TEMPLATE.md) NOW** for complete structure before writing.
 
@@ -368,16 +368,16 @@ Write the complete plan to `docs/plans/NNN-feature-short-name/plan.md`.
 After saving, present options:
 
 ```
-PLAN COMPLETE: docs/plans/NNN-feature-short-name/plan.md
+PLAN COMPLETE: plans/NNN-feature-short-name/plan.md
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 EXECUTION OPTIONS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Option 1: Execute Now (This Session)
-  Run `/superbuild docs/plans/NNN-feature-short-name/plan.md`
+  Run `/superbuild plans/NNN-feature-short-name/plan.md`
 
 Option 2: Execute in Fresh Session
-  Start new session and run `/superbuild docs/plans/NNN-feature-short-name/plan.md`
+  Start new session and run `/superbuild plans/NNN-feature-short-name/plan.md`
 
 Option 3: Review First
   Read through the plan, suggest modifications, then execute
