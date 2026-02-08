@@ -2,7 +2,7 @@
 
 > **MANDATORY**: Use these exact prompts when researching the codebase in Phase 2.
 
-## Launch 4 Parallel Explore Agents
+## Launch 5 Parallel Explore Agents
 
 ### Agent 1: Architecture & Structure
 
@@ -181,6 +181,73 @@ Return in this format:
 "
 ```
 
+### Agent 5: Decision Archaeology
+
+```
+"Mine the project's history and artifacts for architecture decisions to generate ADRs.
+
+Search these sources in order:
+
+1. GIT HISTORY — Run these commands and analyze the output:
+   - git log --oneline --all -100 (recent history)
+   - git log --merges --oneline --all -50 (merge commits often describe decisions)
+   - git log --diff-filter=A --name-only --oneline -50 (files added — reveals when key tech was introduced)
+   - git log --diff-filter=D --name-only --oneline -30 (files deleted — reveals when tech was removed)
+   - git tag -l --sort=-creatordate (version tags — reveals major version bumps)
+   - Look for commits that: add/remove major dependencies, introduce new patterns, refactor structure, change build/deploy config
+
+2. PLAN FILES — Search for:
+   - docs/ or doc/ directories with design documents, RFCs, proposals
+   - ARCHITECTURE.md, DESIGN.md, or similar files
+   - Plan files (*.plan, plan-*.md, *-plan.md, RFC-*.md)
+   - ADR directories (adr/, decisions/, doc/adr/)
+   - TODO.md, ROADMAP.md (may reference past decisions)
+
+3. CODE COMMENTS — Grep for decision rationale:
+   - Comments containing: WHY, DECISION, NOTE, HACK, TRADEOFF, WORKAROUND, RATIONALE
+   - Docstrings explaining design choices
+   - Configuration files with comments explaining non-obvious settings
+
+4. DEPENDENCY CHOICES — Analyze:
+   - Package files (package.json, pyproject.toml, go.mod, Cargo.toml, Gemfile)
+   - Why specific libraries were chosen (look in README, commit messages when deps were added)
+   - Lock file presence and approach
+
+5. CHANGELOG / HISTORY — Search for:
+   - Breaking changes (usually document WHY something changed)
+   - Major version bumps
+   - Migration notes
+
+Return in this format:
+
+## Decisions Found
+
+### From Git History
+| Decision | Evidence (commit SHA + message) | Approx Date | Confidence |
+|----------|-------------------------------|-------------|------------|
+| description | abc1234 — commit message | YYYY-MM-DD | High/Medium/Low |
+
+### From Plan Files / Docs
+| Decision | Source File | Relevant Section |
+|----------|------------|-----------------|
+| description | path/to/file | section or quote |
+
+### From Code Comments
+| Decision | File:Line | Comment Text |
+|----------|-----------|-------------|
+| description | path/to/file:N | comment content |
+
+### Inferred from Structure
+| Decision | Evidence | Confidence |
+|----------|----------|------------|
+| description | what in the code suggests this | High/Medium/Low |
+
+## ADR Candidates (ordered by significance)
+1. ADR title — brief summary, primary source
+2. ...
+"
+```
+
 ---
 
 ## Compiling Research Results
@@ -208,13 +275,14 @@ After all agents complete, compile results into a unified research document:
 ### Development Pipeline
 [Summarize Agent 4 findings]
 
-### Technical Decisions Discovered
-List any WHY rationale found in:
-- Code comments explaining design choices
-- README sections about architecture
-- ADR (Architecture Decision Records) if they exist
-- Git commit messages for significant changes
-- CHANGELOG entries explaining breaking changes
+### ADR Candidates (from Agent 5)
+[Compile Agent 5 findings into ordered list of ADR candidates]
+
+For each candidate, note:
+- Decision title (will become the ADR slug)
+- Primary source type (git history / plan file / code comment / inferred)
+- Key evidence references (commit SHAs, file paths, quotes)
+- Confidence level (High / Medium / Low)
 ```
 
 ---
@@ -229,7 +297,7 @@ If agents cannot find certain information:
 | No test configuration | Note in development.md, skip test documentation |
 | No CI/CD pipeline | Note in development.md, skip CI documentation |
 | No deployment config | Skip deployment section in development.md |
-| No decision records | Infer decisions from code structure, note as inferred |
+| No decision records | Infer decisions from code structure and git history, note as inferred in ADR Sources table |
 | Unclear domain | Use code identifiers as glossary terms, flag for review |
 
 **Never fabricate information to fill gaps.** Document what exists and flag what's missing.

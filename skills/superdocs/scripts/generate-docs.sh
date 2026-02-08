@@ -121,7 +121,8 @@ Execute the superdocs skill:
    - architecture.md: HOW the system is structured, component relationships, WHY design choices were made
    - getting-started.md: HOW to set up and run the project
    - development.md: HOW to contribute, test, and deploy
-   - decisions.md: WHY key technical decisions were made (infer from code if no ADRs exist)
+   - adr/README.md: Index of Architecture Decision Records
+   - adr/NNNN-[slug].md: Individual ADRs mined from git history, plan files, code comments, and project structure
    - glossary.md: WHAT domain-specific terms mean in this project
 
    For each document:

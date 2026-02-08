@@ -42,7 +42,7 @@ Each template provides the structure. Fill in content from Phase 2 research find
 - [Getting Started](getting-started.md) - Set up and run the project
 - [Architecture](architecture.md) - How the system is designed
 - [Development](development.md) - Contributing and testing
-- [Decisions](decisions.md) - Why things are the way they are
+- [Decisions](adr/README.md) - Architecture Decision Records
 - [Glossary](glossary.md) - Project terminology
 ```
 
@@ -105,13 +105,13 @@ Use ASCII art, Mermaid, or structured text.]
 
 Key architectural choices and their rationale:
 
-1. **[Decision]** - [Brief rationale]. See [decisions.md](decisions.md) for full context.
+1. **[Decision]** - [Brief rationale]. See [ADR-NNNN](adr/NNNN-title.md) for full context.
 
 ## Related Documentation
 
 - [Overview](overview.md) - Project purpose and scope
 - [Glossary](glossary.md) - Domain terminology used here
-- [Decisions](decisions.md) - Full decision records
+- [Decisions](adr/README.md) - Architecture Decision Records
 ```
 
 ---
@@ -290,60 +290,110 @@ cp .env.example .env
 
 ---
 
-## 5. decisions.md
+## 5. adr/ — Architecture Decision Records
+
+Each significant technical decision gets its own numbered file in `docs/adr/`.
+Generate two types of files: an index (`README.md`) and individual ADRs.
+
+### 5a. adr/README.md (Index)
 
 ```markdown
-# Technical Decisions
+# Architecture Decision Records
 
-> Key technical decisions made in [Project Name] and their rationale.
+> Significant technical decisions made in [Project Name], recorded as individual ADRs.
 
-This document records significant technical choices. Each entry follows the
-format: **Context** (situation at the time), **Decision** (what was chosen),
-**Consequences** (trade-offs accepted).
+ADRs capture the **context**, **decision**, and **consequences** of choices that
+shape the project's architecture. They are mined from git history, plan files,
+code comments, and project structure.
 
----
+## ADR Index
 
-## [Decision Title]
+| # | Title | Status | Date |
+|---|-------|--------|------|
+| [0001](0001-[slug].md) | [Decision title] | Accepted | [YYYY-MM-DD] |
+| [0002](0002-[slug].md) | [Decision title] | Accepted | [YYYY-MM-DD] |
 
-**Date:** [When this was decided, or "Unknown" if inferred]
-**Status:** [Active / Superseded / Deprecated]
+## Status Definitions
 
-### Context
+| Status | Meaning |
+|--------|---------|
+| **Proposed** | Under discussion, not yet adopted |
+| **Accepted** | Active and in effect |
+| **Superseded** | Replaced by a newer ADR (link to replacement) |
+| **Deprecated** | No longer relevant |
 
-[What was the situation? What problem needed solving? What constraints existed?]
+## Related Documentation
 
-### Decision
+- [Architecture](../architecture.md) - System design context
+- [Development](../development.md) - Contributing workflow
+- [Overview](../overview.md) - Project purpose and scope
+```
+
+### 5b. adr/NNNN-[slug].md (Individual ADR Template)
+
+```markdown
+# ADR-NNNN: [Decision Title]
+
+**Status:** [Proposed | Accepted | Superseded | Deprecated]
+**Date:** [YYYY-MM-DD — when decided, or best estimate from git history]
+**Superseded by:** [ADR-NNNN, if applicable]
+
+## Context
+
+[What was the situation? What problem needed solving? What constraints existed?
+What forces were at play (technical, business, team, timeline)?]
+
+## Decision
 
 [What was chosen? Be specific about the technology, pattern, or approach.]
 
-### Consequences
+## Consequences
 
-**Benefits:**
+### Benefits
+
 - [Positive outcome 1]
 - [Positive outcome 2]
 
-**Trade-offs:**
+### Trade-offs
+
 - [Negative consequence or limitation 1]
 - [Negative consequence or limitation 2]
 
-**Alternatives Considered:**
-- [Alternative 1] - [Why it wasn't chosen]
-- [Alternative 2] - [Why it wasn't chosen]
+### Alternatives Considered
 
----
+| Alternative | Why Not Chosen |
+|-------------|---------------|
+| [Alternative 1] | [Reason] |
+| [Alternative 2] | [Reason] |
 
-[Repeat for each decision discovered during research.
-Aim for 3-8 decisions for a medium project.]
+## Sources
 
-## Inferred Decisions
+> Evidence used to reconstruct this decision.
 
-> These decisions were inferred from the codebase structure rather than
-> explicit documentation. They may need verification.
+| Source Type | Reference |
+|-------------|-----------|
+| Git commit | `[short SHA]` — [commit message summary] |
+| Plan file | `[path/to/plan]` — [relevant section] |
+| Code comment | `[path/to/file:line]` — [comment text] |
+| Config file | `[path/to/config]` — [what it reveals] |
+| CHANGELOG | `[entry date]` — [relevant entry] |
 
-| Decision | Evidence | Confidence |
-|----------|----------|------------|
-| [Inferred decision] | [What in the code suggests this] | [High/Medium/Low] |
+## Related
+
+- [Architecture](../architecture.md) — [relevant section]
+- [ADR-NNNN](NNNN-[slug].md) — [related decision]
 ```
+
+### ADR Generation Guidelines
+
+1. **Number sequentially** starting from `0001`
+2. **Slug format**: lowercase, hyphen-separated (e.g., `0001-use-sqlite-over-postgres.md`)
+3. **Mine git history** for decisions: `git log --oneline --all`, look for significant merges, refactors, dependency additions/removals, and config changes
+4. **Mine plan files** for decisions: search for RFC docs, design docs, plan files, `ARCHITECTURE.md`
+5. **Mine code comments** for rationale: grep for `WHY`, `DECISION`, `NOTE`, `HACK`, `TRADEOFF`
+6. **Infer from structure**: if no explicit source exists, note confidence level in the Sources table as `Inferred — [evidence]`
+7. **Aim for 3-8 ADRs** for a medium project, more for large/complex projects
+8. **Each ADR must have at least one source** — never fabricate rationale without evidence
 
 ---
 

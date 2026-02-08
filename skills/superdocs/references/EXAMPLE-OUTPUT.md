@@ -55,37 +55,58 @@ Users log in with their credentials and receive a token for subsequent requests.
 
 ---
 
-### WHY Coverage (Rationale)
+### WHY Coverage (Rationale via ADRs)
 
-Good:
+Good (individual ADR file `adr/0003-use-jwt-over-sessions.md`):
 ```markdown
-## Why JWT Over Sessions
+# ADR-0003: Use JWT Over Sessions
 
+**Status:** Accepted
 **Date:** 2025-03-15
-**Status:** Active
 
-### Context
+## Context
+
 The API serves both a web frontend and a mobile app. Session-based auth
 would require sticky sessions or a shared session store, adding
 infrastructure complexity.
 
-### Decision
+## Decision
+
 Use stateless JWT tokens with 24-hour expiry and refresh token rotation.
 
-### Consequences
-**Benefits:**
+## Consequences
+
+### Benefits
+
 - No session store needed - reduces infrastructure
 - Works identically for web and mobile clients
 - Horizontal scaling without session affinity
 
-**Trade-offs:**
+### Trade-offs
+
 - Cannot instantly revoke tokens (must wait for expiry)
 - Larger request payload than session cookies
 - Must implement refresh token rotation for security
 
-**Alternatives Considered:**
-- Session + Redis: More infrastructure, but instant revocation
-- OAuth2 with external provider: Added dependency, but less custom code
+### Alternatives Considered
+
+| Alternative | Why Not Chosen |
+|-------------|---------------|
+| Session + Redis | More infrastructure, but instant revocation |
+| OAuth2 with external provider | Added dependency, but less custom code |
+
+## Sources
+
+| Source Type | Reference |
+|-------------|-----------|
+| Git commit | `a1b2c3d` — Add JWT auth middleware with refresh rotation |
+| Code comment | `src/middleware/auth.ts:12` — "JWT chosen for stateless multi-client support" |
+| Config file | `src/config/auth.ts` — Token expiry and rotation settings |
+
+## Related
+
+- [Architecture](../architecture.md) — Authentication Flow section
+- [ADR-0001](0001-use-express-framework.md) — Framework choice affects middleware pattern
 ```
 
 Bad:
@@ -94,7 +115,7 @@ Bad:
 We use JWT for authentication because it's the industry standard.
 ```
 
-**Why the good version works:** Captures the actual reasoning, not a post-hoc justification. Future developers understand the constraints that drove the decision and the trade-offs that were accepted.
+**Why the good version works:** Each ADR is a self-contained file with traceable sources. The decision is linked to actual git commits, code comments, and config files. Future developers can verify the rationale and find related decisions.
 
 ---
 
@@ -108,8 +129,8 @@ SUPERDOCS COMPLETE
 
 Project: acme-api
 Output: docs/
-Files: 6
-Total lines: 847
+Files: 10 (5 docs + 1 ADR index + 4 ADRs)
+Total lines: 1023
 
 COVERAGE MATRIX
                     WHAT    HOW     WHY
@@ -117,10 +138,16 @@ overview.md         [x]     [ ]     [x]     Purpose, features, rationale
 architecture.md     [x]     [x]     [x]     Components, flows, design decisions
 getting-started.md  [x]     [x]     [ ]     Prerequisites, setup steps
 development.md      [x]     [x]     [ ]     Structure, workflow, testing
-decisions.md        [ ]     [ ]     [x]     5 decision records
+adr/                [ ]     [ ]     [x]     4 ADRs (3 from git history, 1 inferred)
 glossary.md         [x]     [ ]     [ ]     12 domain terms
 
-Cross-links: 14/14 verified
+ADRs generated:
+  adr/0001-use-express-framework.md        [Accepted]
+  adr/0002-feature-based-directory-layout.md [Accepted]
+  adr/0003-use-jwt-over-sessions.md        [Accepted]
+  adr/0004-sqlite-for-local-development.md [Accepted]
+
+Cross-links: 18/18 verified
 TODOs remaining: 2 (deployment config unclear, API rate limiting TBD)
 ```
 
@@ -164,7 +191,8 @@ Use this checklist during Phase 5:
 - [ ] Every command mentioned in docs is runnable (verified against package.json/Makefile/Justfile)
 - [ ] Every component in architecture.md corresponds to an actual directory
 - [ ] Every glossary term appears at least once in the codebase
-- [ ] Every decision in decisions.md has evidence in the codebase
+- [ ] Every ADR has at least one traceable source (git commit, code comment, config file)
+- [ ] adr/README.md index matches the actual ADR files in the directory
 - [ ] All cross-links between documents are valid
 - [ ] No placeholder text (`[brackets]`) remains
 - [ ] No generic filler ("standard", "modern", "best practices") without specifics

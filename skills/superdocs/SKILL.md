@@ -58,7 +58,10 @@ docs/
   architecture.md      # HOW + WHY: System design, component relationships
   getting-started.md   # HOW: Setup, prerequisites, first run
   development.md       # HOW: Contributing, testing, deploying
-  decisions.md         # WHY: Key technical decisions and trade-offs
+  adr/                 # WHY: Architecture Decision Records
+    README.md          #   Index of all ADRs with status summary
+    0001-[title].md    #   Individual ADR per significant decision
+    0002-[title].md    #   ...numbered sequentially
   glossary.md          # WHAT: Domain terms, acronyms, project-specific jargon
 ```
 
@@ -180,7 +183,7 @@ Docs to generate: [list what's missing]
 
 ### Launch Parallel Research Agents
 
-Launch 4 parallel Explore agents to gather comprehensive project context:
+Launch 5 parallel Explore agents to gather comprehensive project context:
 
 ```text
 LAUNCHING RESEARCH AGENTS
@@ -190,6 +193,7 @@ Agent 1: Architecture & Structure      [scanning...]
 Agent 2: Patterns & Conventions        [scanning...]
 Agent 3: Domain & Business Logic       [scanning...]
 Agent 4: Build, Test & Deploy Pipeline [scanning...]
+Agent 5: Decision Archaeology          [scanning...]
 
 Estimated time: 2-5 minutes
 ```
@@ -231,6 +235,18 @@ Maps the development lifecycle:
 - How to deploy (if applicable)
 - CI/CD pipeline stages
 
+### Agent 5: Decision Archaeology
+
+Mines project history and artifacts for architecture decisions:
+- Git history: significant commits, merge commits, tag messages, large refactors
+- Plan files: any planning documents, RFCs, design docs in the repo
+- Code comments: `// WHY:`, `// DECISION:`, `// NOTE:`, rationale in docstrings
+- Dependency choices: why specific libraries were chosen (README, commit messages)
+- Configuration patterns: why certain tools/configs are used
+- CHANGELOG / HISTORY entries explaining breaking changes
+- Existing ADRs or decision records (if any)
+- PR/MR descriptions referenced in merge commits
+
 ### Verify Research Results
 
 After agents complete, compile and cross-check:
@@ -239,6 +255,7 @@ After agents complete, compile and cross-check:
 - [ ] No contradictory claims about project structure
 - [ ] Domain concepts align with actual code
 - [ ] Build/test commands are accurate (verify by reading config files)
+- [ ] Decision archaeology findings have supporting evidence (commits, code, docs)
 
 ### CHECKPOINT - Phase 2
 
@@ -250,7 +267,8 @@ Architecture style: [monolith/microservices/serverless/library/CLI/etc.]
 Key components: [list top 5-8]
 Domain concepts: [list core entities]
 Build pipeline: [list key commands]
-Notable decisions found: [list any decision records, comments, or rationale]
+Decisions found: [count] from git history, [count] from code/docs, [count] inferred
+ADR candidates: [list decision titles]
 ```
 
 ---
@@ -267,7 +285,7 @@ Based on project size and existing documentation:
 | `architecture.md` | Yes | Never skip |
 | `getting-started.md` | Yes | Never skip |
 | `development.md` | Yes, for codebases | Project is not a codebase (e.g., pure docs project) |
-| `decisions.md` | Yes, if decisions found | No technical decisions discoverable |
+| `adr/` | Yes, if decisions found | No technical decisions discoverable |
 | `glossary.md` | Yes, if domain terms found | Trivial project with no domain language |
 
 ### Outline Each Document
@@ -306,9 +324,16 @@ development.md:
   - Code style and conventions
   - CI/CD pipeline
 
-decisions.md:
-  - Decision log (one entry per significant choice)
-  - Each entry: Context, Decision, Consequences, Status
+adr/README.md:
+  - Index of all ADRs with status and summary
+  - Link to each individual ADR file
+
+adr/NNNN-[title].md (one per decision):
+  - Status (Accepted / Superseded / Deprecated)
+  - Context: situation, constraints, forces at play
+  - Decision: what was chosen
+  - Consequences: benefits, trade-offs, alternatives considered
+  - Sources: git commits, plan files, code references that evidence the decision
 
 glossary.md:
   - Alphabetical term list
@@ -328,7 +353,7 @@ I'll generate the following docs:
   2. architecture.md  - System design and components
   3. getting-started.md - Setup and first run
   4. development.md   - Contributing and testing
-  5. decisions.md     - Technical decision log
+  5. adr/             - Architecture Decision Records
   6. glossary.md      - Domain terminology
 
 Output directory: docs/
@@ -366,7 +391,9 @@ Generate documents in this order (each builds on the previous):
 3. **architecture.md** - references overview for scope, links to glossary
 4. **getting-started.md** - references architecture for understanding
 5. **development.md** - references getting-started for setup, architecture for structure
-6. **decisions.md** last - references everything, captures cross-cutting rationale
+6. **adr/** last - each ADR references relevant docs, captures cross-cutting rationale
+   - Write `adr/README.md` index first
+   - Write individual `adr/NNNN-title.md` files, numbered sequentially
 
 ### Per-Document Process
 
@@ -383,7 +410,7 @@ For each document:
 Write all files to the output directory:
 
 ```bash
-mkdir -p docs/
+mkdir -p docs/adr/
 ```
 
 Write each file using the Write tool.
@@ -397,14 +424,17 @@ GENERATION COMPLETE
 --------------------
 
 Files written:
-  docs/overview.md          [X lines]
-  docs/architecture.md      [X lines]
-  docs/getting-started.md   [X lines]
-  docs/development.md       [X lines]
-  docs/decisions.md         [X lines]
-  docs/glossary.md          [X lines]
+  docs/overview.md              [X lines]
+  docs/architecture.md          [X lines]
+  docs/getting-started.md       [X lines]
+  docs/development.md           [X lines]
+  docs/adr/README.md            [X lines]
+  docs/adr/0001-[title].md      [X lines]
+  docs/adr/0002-[title].md      [X lines]
+  ...
+  docs/glossary.md              [X lines]
 
-Total: [N] files, [M] total lines
+Total: [N] files ([M] ADRs), [L] total lines
 ```
 
 ---
@@ -424,7 +454,7 @@ overview.md         [x]     [ ]     [x]
 architecture.md     [x]     [x]     [x]
 getting-started.md  [x]     [x]     [ ]
 development.md      [x]     [x]     [ ]
-decisions.md        [ ]     [ ]     [x]
+adr/                [ ]     [ ]     [x]     [N] ADR files
 glossary.md         [x]     [ ]     [ ]
 
 Legend: [x] = covered, [ ] = not applicable for this doc
@@ -437,9 +467,11 @@ Verify that documents reference each other where appropriate:
 - [ ] overview.md links to architecture.md for deeper technical context
 - [ ] overview.md links to getting-started.md for setup
 - [ ] architecture.md links to glossary.md for domain terms
-- [ ] architecture.md links to decisions.md for design rationale
+- [ ] architecture.md links to adr/README.md for design rationale
 - [ ] getting-started.md links to development.md for next steps
 - [ ] development.md links to architecture.md for structure context
+- [ ] adr/README.md links to each individual ADR file
+- [ ] Individual ADRs link back to relevant docs (architecture.md, development.md, etc.)
 
 ### Accuracy Spot-Check
 
@@ -481,7 +513,9 @@ Documents generated:
   docs/architecture.md
   docs/getting-started.md
   docs/development.md
-  docs/decisions.md
+  docs/adr/README.md
+  docs/adr/0001-[title].md
+  docs/adr/...
   docs/glossary.md
 ```
 
