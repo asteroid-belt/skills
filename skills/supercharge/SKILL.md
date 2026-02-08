@@ -60,6 +60,8 @@ Supercharge systematically identifies and fixes "AI slop" - the verbose, repetit
 │                                                                      │
 │  1. DETECT         →  Identify stack, quality tools, codebase size  │
 │        ↓                                                             │
+│  1.5 CHARACTERIZE  →  Add missing tests (if coverage < 60%)         │
+│        ↓               Red-Green-Refactor: tests BEFORE changes     │
 │  2. SCAN           →  Find AI slop using smell detection prompts    │
 │        ↓                                                             │
 │  3. PRIORITIZE     →  Rank issues by severity, identify quick wins  │
@@ -73,8 +75,8 @@ Supercharge systematically identifies and fixes "AI slop" - the verbose, repetit
 │  7. REPORT         →  Generate hygiene report with metrics          │
 │                                                                      │
 │  ═══════════════════════════════════════════════════════════════════ │
-│  For large codebases, Phases 5-6 repeat per refactoring batch.      │
-│  Tests MUST pass after each batch before proceeding.                │
+│  Phase 1.5 is MANDATORY if test coverage < 60% on files to refactor │
+│  Phases 5-6 repeat per refactoring batch. Tests MUST pass after each│
 │  ═══════════════════════════════════════════════════════════════════ │
 │                                                                      │
 └─────────────────────────────────────────────────────────────────────┘
@@ -88,6 +90,7 @@ Supercharge systematically identifies and fixes "AI slop" - the verbose, repetit
 
 | When | Reference | What You Get |
 |------|-----------|--------------|
+| **Phase 1.5: Characterize** | [CHARACTERIZATION-TESTS.md](references/CHARACTERIZATION-TESTS.md) | How to write tests for legacy/untested code |
 | **Phase 2: Scan** | [AI-SLOP-CATALOG.md](references/AI-SLOP-CATALOG.md) | 15 AI code problems with examples |
 | **Phase 2: Scan** | [SMELL-DETECTION-PROMPTS.md](references/SMELL-DETECTION-PROMPTS.md) | Exact prompts for Explore agents |
 | **Phase 3: Prioritize** | [SEVERITY-MATRIX.md](references/SEVERITY-MATRIX.md) | How to rank and prioritize issues |
@@ -124,7 +127,9 @@ Detect the primary language, framework, and quality tools:
 
 ### Step 3: Verify Test Coverage Exists
 
-**CRITICAL**: Do NOT proceed if tests don't exist for areas being refactored.
+**CRITICAL**: Do NOT proceed with refactoring if tests don't exist for areas being refactored.
+
+#### Scenario A: No Tests At All
 
 ```text
 ⛔ SUPERCHARGE BLOCKED
@@ -150,6 +155,151 @@ Which option?
 **If user selects Option 1**: Stop execution immediately and hand off to `/superplan`.
 
 **If user selects Option 2**: Continue to Phase 2 (SCAN) but skip Phases 5-6 (EXECUTE/VERIFY). Generate report only.
+
+#### Scenario B: Tests Exist But Coverage Is Incomplete
+
+If the codebase has tests but specific files/functions lack coverage:
+
+```text
+⚠️  PARTIAL TEST COVERAGE DETECTED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Test framework: Jest
+Total coverage: 45%
+
+Files with issues but NO test coverage:
+  - src/services/userService.ts (0% coverage, 9 issues)
+  - src/utils/helpers.ts (12% coverage, 6 issues)
+  - src/api/handlers.ts (0% coverage, 5 issues)
+
+Files with issues AND test coverage:
+  - src/models/user.ts (89% coverage, 3 issues) ✓
+  - src/components/Form.tsx (76% coverage, 4 issues) ✓
+
+Options:
+1. Add characterization tests for uncovered files first (recommended)
+2. Only refactor files with existing coverage
+3. Continue with scan-only mode
+
+Which option?
+```
+
+> **STOP. Read [CHARACTERIZATION-TESTS.md](references/CHARACTERIZATION-TESTS.md) NOW** for characterization testing patterns.
+
+---
+
+## Phase 1.5: CHARACTERIZE - Add Missing Tests
+
+**Before refactoring any code, ensure tests exist that characterize its current behavior.**
+
+Characterization tests (from Michael Feathers' "Working Effectively with Legacy Code") capture what code *actually does* - not what it *should do*. They provide a safety net for refactoring.
+
+### When to Create Characterization Tests
+
+| Situation | Action |
+|-----------|--------|
+| No tests for file being refactored | Create characterization tests FIRST |
+| Tests exist but low coverage (<60%) | Add tests for uncovered paths |
+| Complex function being extracted | Add tests covering all branches |
+| Code behavior is unclear | Write tests to document behavior |
+
+### Red-Green-Refactor Discipline
+
+**EVERY refactoring follows this cycle:**
+
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│                     RED-GREEN-REFACTOR CYCLE                         │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  1. RED (Characterize)                                              │
+│     │  Write a test that captures current behavior                  │
+│     │  Run test → it should PASS (characterizing existing code)     │
+│     │  If it fails, your understanding is wrong - investigate       │
+│     ↓                                                                │
+│  2. GREEN (Verify)                                                  │
+│     │  Confirm all characterization tests pass                      │
+│     │  These tests are your safety net                              │
+│     ↓                                                                │
+│  3. REFACTOR (Improve)                                              │
+│     │  Apply the refactoring (extract, rename, move, etc.)          │
+│     │  Run tests → they MUST still pass                             │
+│     │  If tests fail, refactoring changed behavior - REVERT         │
+│     ↓                                                                │
+│  4. REPEAT                                                          │
+│     │  One refactoring at a time                                    │
+│     │  Tests pass after each step                                   │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Creating Characterization Tests
+
+For each file/function lacking tests:
+
+1. **Identify inputs** - What parameters does it accept?
+2. **Identify outputs** - What does it return? What side effects?
+3. **Call the code** - Execute with known inputs
+4. **Assert actual behavior** - Whatever it returns, assert THAT
+
+```text
+CHARACTERIZATION TEST CREATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+File: src/services/userService.ts
+Function: processUser(user)
+Coverage: 0% → Target: 80%+
+
+Step 1: Identify inputs
+  - user: { id: string, name: string, email: string }
+
+Step 2: Call with sample input
+  - result = processUser({ id: "1", name: "Test", email: "test@example.com" })
+
+Step 3: Observe actual output
+  - result = { id: "1", name: "TEST", email: "test@example.com", processed: true }
+
+Step 4: Write test asserting actual behavior
+  - expect(result.name).toBe("TEST")  // Captures uppercase transformation
+  - expect(result.processed).toBe(true)  // Captures added flag
+
+Tests created: 3 characterization tests
+Coverage: 0% → 78%
+Ready for refactoring: ✓
+```
+
+### Test Quality Gate
+
+**Do NOT proceed to refactoring until:**
+
+- [ ] All files to be refactored have characterization tests
+- [ ] Coverage is at least 60% for each file (80% preferred)
+- [ ] Tests cover happy path AND error cases
+- [ ] Tests document any surprising or non-obvious behavior
+- [ ] All tests pass
+
+```text
+CHARACTERIZATION COMPLETE
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Files characterized:
+  ✓ src/services/userService.ts (82% coverage, 12 tests)
+  ✓ src/utils/helpers.ts (71% coverage, 8 tests)
+  ✓ src/api/handlers.ts (65% coverage, 15 tests)
+
+Total new tests: 35
+All tests passing: ✓
+
+Ready to proceed to Phase 2 (SCAN).
+```
+
+### CHECKPOINT - Phase 1.5
+
+After characterization complete:
+
+```text
+/compact focus on: Phase 1.5 complete, [N] characterization tests added, coverage now [X]%, Phase 2 ready for smell detection
+```
 
 ---
 
@@ -350,47 +500,173 @@ After plan generation, run context compaction before execution:
 ## Phase 5: EXECUTE - Apply Refactorings
 
 > **STOP. Read [SAFE-REFACTORING-RULES.md](references/SAFE-REFACTORING-RULES.md) NOW** for auto-apply rules.
+> **STOP. Read [CHARACTERIZATION-TESTS.md](references/CHARACTERIZATION-TESTS.md) NOW** for test-first patterns.
+
+### The Golden Rule
+
+**NO REFACTORING WITHOUT CHARACTERIZATION TESTS.**
+
+Even "safe" refactorings like removing dead code require tests that prove the code is actually dead. The test proves the refactoring is safe.
 
 ### Execution Rules
 
 | Refactoring Type | Action |
 |-----------------|--------|
-| **SAFE** (dead code, rename local) | Apply automatically |
-| **REQUIRES APPROVAL** (extract function, move) | Show diff, ask user |
+| **SAFE** (dead code, rename local) | Verify tests exist, then apply |
+| **REQUIRES APPROVAL** (extract function, move) | Add characterization tests, show diff, ask user |
 | **NEVER AUTO-APPLY** (delete files, change API) | Create subtask for human |
+
+### Characterization-First Workflow (Per Refactoring)
+
+**EVERY refactoring follows this micro-cycle:**
+
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│              CHARACTERIZATION-FIRST REFACTORING                      │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  1. CHECK: Does test coverage exist for this code?                  │
+│     │  YES → Proceed to step 3                                      │
+│     │  NO  → Step 2                                                 │
+│     ↓                                                                │
+│  2. CHARACTERIZE: Write test capturing current behavior             │
+│     │  Run test → MUST PASS (it characterizes existing code)        │
+│     │  If fails → your understanding is wrong, investigate          │
+│     ↓                                                                │
+│  3. REFACTOR: Apply the single refactoring                          │
+│     │  One change only                                              │
+│     ↓                                                                │
+│  4. VERIFY: Run characterization tests                              │
+│     │  PASS → Behavior preserved, continue                          │
+│     │  FAIL → Refactoring broke behavior, REVERT immediately        │
+│     ↓                                                                │
+│  5. NEXT: Move to next refactoring, repeat from step 1              │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
 ### Pre-Flight Checks (Before Each Refactoring)
 
-- [ ] Tests exist for affected code
-- [ ] Tests currently pass
-- [ ] Understand what the code does
+- [ ] Characterization tests exist for affected code (or add them NOW)
+- [ ] All characterization tests currently PASS
+- [ ] Understand what the code does (tests document this)
 - [ ] Identified all affected locations
+- [ ] Coverage is at least 60% for the code being changed
 
 ### Post-Flight Checks (After Each Refactoring)
 
-- [ ] Tests still pass
-- [ ] Behavior unchanged (spot check)
+- [ ] All characterization tests still PASS
+- [ ] No behavioral change (tests prove this)
 - [ ] No new warnings
 - [ ] Diff is minimal (no accidental changes)
 
+### Example: Characterization Before Dead Code Removal
+
+Even "obviously safe" refactorings need verification:
+
+```text
+REFACTORING: Remove unused function oldHelper()
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 1: CHECK - Is oldHelper() truly unused?
+  - Grep for "oldHelper" across codebase
+  - Check for dynamic calls: obj["oldHelper"]
+  - Check for reflection usage
+  - Result: No references found ✓
+
+Step 2: CHARACTERIZE - Prove it's safe to remove
+  - Existing tests don't call oldHelper() ✓
+  - No test failures when function body is commented out ✓
+  - Characterization: Removal is safe
+
+Step 3: REFACTOR - Delete the function
+  - Remove lines 45-67 from src/utils.ts
+
+Step 4: VERIFY - Run all tests
+  - npm test → All 127 tests pass ✓
+  - Behavior preserved ✓
+
+Step 5: NEXT - Proceed to next refactoring
+```
+
+### Example: Characterization Before Extract Function
+
+```text
+REFACTORING: Extract validateUser() from processUser()
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 1: CHECK - Coverage for processUser()?
+  - Current coverage: 45%
+  - Missing: error paths, edge cases
+  - Result: Need more characterization tests
+
+Step 2: CHARACTERIZE - Add tests for lines being extracted
+
+  // New characterization tests
+  it('validates email format', () => {
+    const user = { email: 'invalid' };
+    expect(() => processUser(user)).toThrow('Invalid email');
+  });
+
+  it('validates name is not empty', () => {
+    const user = { email: 'test@example.com', name: '' };
+    expect(() => processUser(user)).toThrow('Name required');
+  });
+
+  - Run tests → All pass ✓
+  - Coverage now: 78% ✓
+
+Step 3: REFACTOR - Extract validateUser()
+  - Move validation logic to new function
+  - Call validateUser() from processUser()
+
+Step 4: VERIFY - Run characterization tests
+  - All tests pass ✓
+  - Behavior preserved ✓
+
+Step 5: NEXT - Proceed to next refactoring
+```
+
 ### Batch Execution
 
-For efficiency, batch similar refactorings:
+For efficiency, batch similar refactorings - but verify characterization for each:
 
 ```text
 EXECUTING BATCH: Dead Code Removal
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[1/5] Removing unused import in src/utils.ts:1 ✓
-[2/5] Removing unused function in src/utils.ts:45 ✓
-[3/5] Removing console.log in src/api.ts:102 ✓
-[4/5] Removing commented code in src/services.ts:33 ✓
-[5/5] Removing TODO in src/models.ts:12 ✓
+[1/5] src/utils.ts:1 - unused import
+      Characterization: No references found ✓
+      Refactoring: Remove import ✓
+      Tests: 127/127 pass ✓
 
-Running tests... ✓ All tests pass
+[2/5] src/utils.ts:45 - unused function oldHelper()
+      Characterization: No callers, no dynamic refs ✓
+      Refactoring: Remove function ✓
+      Tests: 127/127 pass ✓
 
-Batch complete: 5 refactorings applied
+[3/5] src/api.ts:102 - console.log statement
+      Characterization: Debug only, no side effects ✓
+      Refactoring: Remove line ✓
+      Tests: 127/127 pass ✓
+
+[4/5] src/services.ts:33 - commented code block
+      Characterization: Dead code, git has history ✓
+      Refactoring: Remove comments ✓
+      Tests: 127/127 pass ✓
+
+[5/5] src/models.ts:12 - TODO comment
+      Characterization: Non-functional, safe to remove ✓
+      Refactoring: Remove TODO ✓
+      Tests: 127/127 pass ✓
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Batch complete: 5/5 refactorings applied
+All characterizations verified ✓
+All tests passing ✓
 ```
+
+**CRITICAL**: If ANY characterization check fails, STOP the batch and investigate.
 
 ### Approval Flow (For Non-Safe Refactorings)
 
@@ -552,7 +828,7 @@ Recommended next session focus:
 | Excuse | Reality |
 |--------|---------|
 | "Let me rename everything at once" | **NO.** One refactoring at a time. Test between each. |
-| "Tests can come after refactoring" | **NO.** Tests MUST pass before AND after. |
+| "Tests can come after refactoring" | **NO.** Tests MUST exist before AND pass after. |
 | "This is a quick fix, no need to test" | **NO.** All refactorings require verification. |
 | "The code is obviously correct" | **NO.** Confidence ≠ evidence. Run the tests. |
 | "I'll batch all the commits at the end" | **NO.** Commit after each verified batch. |
@@ -560,6 +836,9 @@ Recommended next session focus:
 | "Let me just rewrite this function" | **NO.** Refactoring preserves behavior. Rewriting doesn't. |
 | "These naming changes are low risk" | **NO.** Even renames can break reflection, dynamic calls. |
 | "The linter errors don't matter" | **NO.** Fix linter errors before refactoring more. |
+| "I understand the code, I don't need tests" | **NO.** Characterization tests document behavior for future you. |
+| "Writing tests first takes too long" | **NO.** Debugging broken refactorings takes longer. |
+| "60% coverage is good enough" | **MAYBE.** 60% is minimum. 80%+ for complex code. |
 
 ---
 
@@ -569,12 +848,15 @@ If you catch yourself doing any of these, STOP:
 
 - Changing behavior while refactoring
 - Refactoring code without tests
+- Skipping Phase 1.5 (characterization) when coverage is low
 - Skipping verification steps
 - Batching too many changes before testing
 - Assuming tests will pass without running them
 - Ignoring test failures and continuing
 - Making changes in generated files
 - Refactoring code you don't understand
+- Writing implementation before characterization tests pass
+- Fixing bugs discovered during characterization (document now, fix later)
 
 ---
 
@@ -631,6 +913,7 @@ Continue from Phase 5, Task 13: Extract function in userService.ts:145
 | Phase | Action | Reference |
 |-------|--------|-----------|
 | 1. DETECT | Identify stack, verify tests exist | - |
+| 1.5. CHARACTERIZE | Add missing tests for untested code | CHARACTERIZATION-TESTS |
 | 2. SCAN | Launch smell detection agents | AI-SLOP-CATALOG, SMELL-DETECTION-PROMPTS |
 | 3. PRIORITIZE | Rank issues, identify quick wins | SEVERITY-MATRIX |
 | 4. PLAN | Generate superplan-compatible plan | FOWLER-REFACTORINGS |
