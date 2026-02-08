@@ -421,6 +421,54 @@ are omitted unless they have a project-specific meaning.
 
 ---
 
+## 7. Monorepo Root docs/README.md
+
+> **Only generate this when the project is classified as MONOREPO.**
+
+````markdown
+# [Project Name] Documentation
+
+> Documentation index for the [Project Name] monorepo.
+
+## Packages
+
+| Package | Path | Type | Description |
+|---------|------|------|-------------|
+| [package-name] | [`apps/web/docs/`](../apps/web/docs/overview.md) | App | [Brief description] |
+| [package-name] | [`apps/api/docs/`](../apps/api/docs/overview.md) | App | [Brief description] |
+| [package-name] | [`packages/shared/docs/`](../packages/shared/docs/overview.md) | Library | [Brief description] |
+
+## Quick Links
+
+Each package has its own full documentation set:
+
+- **overview.md** — What the package is and why it exists
+- **architecture.md** — How the package is structured and key design decisions
+- **getting-started.md** — Setup and first run
+- **development.md** — Contributing, testing, deploying
+- **adr/** — Architecture Decision Records
+- **glossary.md** — Domain terminology
+
+## Monorepo Structure
+
+```text
+[Trimmed tree showing top-level layout]
+```
+
+| Directory | Purpose |
+|-----------|---------|
+| `apps/` | Deployable applications |
+| `packages/` | Shared libraries and utilities |
+| `docs/` | This index (you are here) |
+
+## Cross-Package Concerns
+
+[Document any cross-cutting concerns that span multiple packages:
+shared configuration, monorepo tooling, workspace dependencies, shared CI/CD]
+````
+
+---
+
 ## Template Usage Notes
 
 1. **Delete inapplicable sections** - If the project has no CI/CD, remove that section from development.md entirely rather than writing "N/A"

@@ -4,6 +4,7 @@ set -euo pipefail
 # Script: generate-docs.sh
 # Purpose: Generate project documentation via superdocs skill using Claude Code CLI.
 #          Designed for local use and CI pipelines.
+#          Automatically detects codebase type, existing docs state, and monorepo layout.
 # Requirements: claude CLI
 
 REQUIRED_ARGS=()
@@ -13,7 +14,6 @@ REQUIRED_PROGRAMS=("claude")
 # Defaults
 PROJECT_DIR="${PWD}"
 OUTPUT_DIR="docs"
-MODE="full"
 PRINT_ONLY="false"
 
 usage() {
@@ -22,16 +22,17 @@ Usage: generate-docs.sh [OPTIONS]
 
 Generate project documentation using the superdocs skill.
 
+Superdocs automatically detects:
+- Whether this is a codebase (validates source code exists)
+- Whether this is a monorepo (generates per-package docs with root index)
+- Whether docs already exist (migrates or updates as needed)
+- What changed since docs were last updated (git-based staleness)
+
 Options:
   --project-dir <path>   Project root directory (default: current directory)
   --output-dir <name>    Output directory name relative to project root (default: docs)
-  --mode <mode>          Generation mode: full or incremental (default: full)
   --print-only           Print the prompt that would be sent to claude without executing
   -h, --help             Show this help message
-
-Modes:
-  full          Generate all documentation from scratch
-  incremental   Update existing docs, preserving manual edits
 
 Examples:
   # Generate docs for current project
@@ -40,11 +41,11 @@ Examples:
   # Generate docs for a specific project
   generate-docs.sh --project-dir /path/to/project
 
-  # Update existing docs
-  generate-docs.sh --mode incremental
+  # Preview the prompt without executing
+  generate-docs.sh --print-only
 
   # CI pipeline usage
-  generate-docs.sh --project-dir . --output-dir docs --mode full
+  generate-docs.sh --project-dir . --output-dir docs
 
 External tools:
   claude    Claude Code CLI (https://docs.anthropic.com/en/docs/claude-code)
@@ -87,36 +88,46 @@ check_requirements() {
 build_prompt() {
   local project_dir="$1"
   local output_dir="$2"
-  local mode="$3"
-
-  local mode_instruction=""
-  if [ "$mode" = "incremental" ]; then
-    mode_instruction="Run in incremental mode: read existing docs in ${output_dir}/ and update only stale sections. Preserve content outside of <!-- superdocs:start --> / <!-- superdocs:end --> markers."
-  else
-    mode_instruction="Run in full mode: generate all documentation from scratch in ${output_dir}/."
-  fi
 
   cat << PROMPT
-You are running in headless/CI mode. Do not ask for user confirmation at any point. Proceed automatically through all phases.
-
 Project directory: ${project_dir}
 Output directory: ${output_dir}
 
-${mode_instruction}
+Execute the superdocs skill. Run fully automatically — no user prompts or confirmations at any point.
 
-Execute the superdocs skill:
+Phase 1 — DISCOVER:
+1. Validate this is a codebase (has package files, source dirs, or build config). If not, exit with an error.
+2. Detect if this is a monorepo (workspace configs, multi-package dirs, monorepo tools). Classify as SINGLE or MONOREPO.
+3. Scan the entire repo for existing ADRs in any location (adr/, adrs/, decisions/, doc/adr/, scattered ADR-*.md files). Record what exists so they can be centralized into ${output_dir}/adr/.
+4. Check for existing docs in ${output_dir}/. Classify as:
+   - FRESH: No ${output_dir}/ directory → full generation from scratch
+   - MIGRATE: ${output_dir}/ exists but not in superdocs format → absorb existing content, then generate
+   - UPDATE: ${output_dir}/ exists in superdocs format → diff codebase changes, update stale content
+5. If UPDATE: compute git-based staleness by comparing last docs commit to HEAD. List changed files and map them to affected superdocs documents.
+6. Detect tech stack (language, framework, build system, test framework, CI/CD).
+7. Read existing docs (README.md, CLAUDE.md, AGENTS.md, CONTRIBUTING.md, CHANGELOG.md).
+8. Build project tree and estimate scope.
 
-1. DISCOVER: Scan the project at ${project_dir}. Read README.md, CLAUDE.md, AGENTS.md, and any existing docs. Detect the tech stack. Build a project tree. Estimate project scope.
+Phase 1b — MIGRATE (only if MIGRATE state):
+- Inventory existing docs, map content to superdocs structure, extract reusable content, restructure.
+- Centralize any existing ADRs found in step 3 into ${output_dir}/adr/, normalizing format and renumbering sequentially.
 
-2. RESEARCH: Launch parallel exploration to understand:
-   - Architecture and structure (entry points, components, data flow)
-   - Patterns and conventions (naming, error handling, configuration)
-   - Domain and business logic (entities, features, API surface)
-   - Build, test, and deploy pipeline (commands, CI/CD, deployment)
+Phase 2 — RESEARCH:
+Launch 5 parallel exploration agents:
+   Agent 1: Architecture & Structure (entry points, components, data flow, integrations)
+   Agent 2: Patterns & Conventions (naming, error handling, config, code style)
+   Agent 3: Domain & Business Logic (entities, features, API surface, glossary terms)
+   Agent 4: Build, Test & Deploy Pipeline (commands, CI/CD, deployment)
+   Agent 5: Decision Archaeology (git history, plan files, code comments for ADR candidates)
 
-3. OUTLINE: Plan which documents to generate based on what was discovered. Generate all applicable documents.
+For MONOREPO: run agents per-package, parallelizing across packages.
+For UPDATE: focus research on areas identified as changed in the staleness report.
 
-4. GENERATE: Write the following markdown files to ${output_dir}/:
+Phase 3 — OUTLINE:
+Plan which documents to generate. For UPDATE mode, build a change plan showing which docs are stale, which need new content, and which are unchanged.
+
+Phase 4 — GENERATE:
+Write markdown files to ${output_dir}/:
    - overview.md: WHAT the project is, WHY it exists, key features
    - architecture.md: HOW the system is structured, component relationships, WHY design choices were made
    - getting-started.md: HOW to set up and run the project
@@ -125,15 +136,25 @@ Execute the superdocs skill:
    - adr/NNNN-[slug].md: Individual ADRs mined from git history, plan files, code comments, and project structure
    - glossary.md: WHAT domain-specific terms mean in this project
 
-   For each document:
+For MONOREPO: generate per-package docs, then a root ${output_dir}/README.md linking to each package.
+For UPDATE: rewrite only stale documents, create new ADRs, leave accurate docs untouched.
+
+For each document:
    - Use actual file paths, commands, and code from the project
    - Include cross-links to other documents
    - Flag uncertain claims with <!-- TODO: verify --> comments
    - Answer WHAT, HOW, and WHY at every level
 
-5. VERIFY: Check that all file paths mentioned exist, all commands are valid, cross-links work, and WHAT/HOW/WHY coverage is complete.
+Phase 5 — VERIFY:
+Check that all file paths mentioned exist, all commands are valid, cross-links work, and WHAT/HOW/WHY coverage is complete.
 
-Print a final summary showing files generated, line counts, and any TODOs remaining.
+Print a final summary showing:
+- Project name and type (SINGLE/MONOREPO)
+- Docs state (FRESH/MIGRATE/UPDATE)
+- Files generated/updated/unchanged
+- Line counts
+- WHAT/HOW/WHY coverage matrix
+- TODOs remaining
 PROMPT
 }
 
@@ -146,14 +167,6 @@ parse_args() {
         ;;
       --output-dir)
         OUTPUT_DIR="$2"
-        shift 2
-        ;;
-      --mode)
-        MODE="$2"
-        if [ "$MODE" != "full" ] && [ "$MODE" != "incremental" ]; then
-          printf 'Error: --mode must be "full" or "incremental", got "%s".\n' "$MODE" >&2
-          exit 1
-        fi
         shift 2
         ;;
       --print-only)
@@ -186,7 +199,7 @@ main() {
   fi
 
   local prompt
-  prompt="$(build_prompt "$PROJECT_DIR" "$OUTPUT_DIR" "$MODE")"
+  prompt="$(build_prompt "$PROJECT_DIR" "$OUTPUT_DIR")"
 
   if [ "$PRINT_ONLY" = "true" ]; then
     printf '%s\n' "$prompt"
@@ -195,7 +208,6 @@ main() {
 
   printf 'Superdocs: Generating documentation for %s\n' "$PROJECT_DIR"
   printf 'Output directory: %s/%s\n' "$PROJECT_DIR" "$OUTPUT_DIR"
-  printf 'Mode: %s\n' "$MODE"
   printf '---\n'
 
   claude --print \

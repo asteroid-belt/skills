@@ -128,9 +128,16 @@ SUPERDOCS COMPLETE
 ===================
 
 Project: acme-api
+Type: SINGLE
 Output: docs/
+Docs state: FRESH
+
 Files: 10 (5 docs + 1 ADR index + 4 ADRs)
 Total lines: 1023
+
+WHAT coverage: 4/6 documents
+HOW coverage:  4/6 documents
+WHY coverage:  3/6 documents
 
 COVERAGE MATRIX
                     WHAT    HOW     WHY
@@ -141,7 +148,10 @@ development.md      [x]     [x]     [ ]     Structure, workflow, testing
 adr/                [ ]     [ ]     [x]     4 ADRs (3 from git history, 1 inferred)
 glossary.md         [x]     [ ]     [ ]     12 domain terms
 
-ADRs generated:
+Documents generated:  10
+Documents updated:    0
+Documents unchanged:  0
+ADRs total:           4
   adr/0001-use-express-framework.md        [Accepted]
   adr/0002-feature-based-directory-layout.md [Accepted]
   adr/0003-use-jwt-over-sessions.md        [Accepted]
@@ -180,6 +190,83 @@ TODOs remaining: 2 (deployment config unclear, API rate limiting TBD)
 ### 4. Missing Cross-Links
 
 Every document should reference at least 2 others. If `architecture.md` mentions a domain term, link to `glossary.md`. If `getting-started.md` mentions project structure, link to `architecture.md`.
+
+---
+
+## Monorepo Coverage Matrix Example
+
+A monorepo run generates per-package docs with a root index:
+
+```text
+SUPERDOCS COMPLETE
+===================
+
+Project: acme-platform
+Type: MONOREPO (3 packages)
+Output: docs/ + per-package docs/
+Docs state: FRESH
+
+Root index: docs/README.md (links to 3 packages)
+
+Package: apps/web
+  Files: 10 (5 docs + 1 ADR index + 4 ADRs)
+  Lines: 892
+
+Package: apps/api
+  Files: 12 (5 docs + 1 ADR index + 6 ADRs)
+  Lines: 1340
+
+Package: packages/shared-ui
+  Files: 8 (5 docs + 1 ADR index + 2 ADRs)
+  Lines: 523
+
+Total: 31 files, 2755 lines
+
+Cross-links: 42/42 verified
+TODOs remaining: 3
+```
+
+---
+
+## UPDATE Mode Example
+
+When re-running on a codebase with existing superdocs:
+
+```text
+SUPERDOCS COMPLETE
+===================
+
+Project: acme-api
+Type: SINGLE
+Output: docs/
+Docs state: UPDATE
+Staleness: was 23 commits behind, now current
+
+Files: 10 (5 docs + 1 ADR index + 4 ADRs)
+Total lines: 1089
+
+Documents updated:    3 (architecture.md, development.md, getting-started.md)
+Documents unchanged:  4 (overview.md, glossary.md, adr/0001, adr/0002)
+Documents created:    1 (adr/0005-migrate-to-drizzle-orm.md)
+ADRs superseded:      1 (adr/0003 -> adr/0005)
+ADRs total:           5
+
+Changes applied:
+  architecture.md:
+    - ADDED: New payments module (src/modules/payments/)
+    - UPDATED: Data flow diagram with payment processing
+  development.md:
+    - UPDATED: Test commands (jest -> vitest migration)
+  getting-started.md:
+    - UPDATED: Node version 18 -> 20 in prerequisites
+  adr/0005-migrate-to-drizzle-orm.md:
+    - NEW: Decision to migrate from Prisma to Drizzle ORM
+  adr/0003-use-prisma-orm.md:
+    - SUPERSEDED by adr/0005
+
+Cross-links: 20/20 verified
+TODOs remaining: 1 (deployment config unclear)
+```
 
 ---
 

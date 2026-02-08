@@ -4,6 +4,8 @@
 
 Generate project documentation using the superdocs skill via Claude Code CLI.
 
+Superdocs automatically detects the codebase type, existing docs state, and monorepo layout. No mode flags needed — it figures out what to do based on what it finds.
+
 ### Local Usage
 
 ```bash
@@ -12,9 +14,6 @@ Generate project documentation using the superdocs skill via Claude Code CLI.
 
 # Generate docs for a specific project
 ./scripts/generate-docs.sh --project-dir /path/to/project
-
-# Update existing docs incrementally
-./scripts/generate-docs.sh --mode incremental
 
 # Preview the prompt without executing
 ./scripts/generate-docs.sh --print-only
@@ -25,12 +24,12 @@ Generate project documentation using the superdocs skill via Claude Code CLI.
 ```yaml
 # GitHub Actions example
 - name: Generate documentation
-  run: ./scripts/generate-docs.sh --project-dir . --output-dir docs --mode full
+  run: ./scripts/generate-docs.sh --project-dir . --output-dir docs
 
 # GitLab CI example
 generate-docs:
   script:
-    - ./scripts/generate-docs.sh --project-dir . --output-dir docs --mode full
+    - ./scripts/generate-docs.sh --project-dir . --output-dir docs
 ```
 
 ### Options
@@ -39,7 +38,6 @@ generate-docs:
 |------|---------|-------------|
 | `--project-dir <path>` | Current directory | Project root to document |
 | `--output-dir <name>` | `docs` | Output directory (relative to project root) |
-| `--mode <mode>` | `full` | `full` (regenerate) or `incremental` (update) |
 | `--print-only` | off | Print the prompt without running claude |
 | `-h, --help` | - | Show usage information |
 

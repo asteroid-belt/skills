@@ -186,7 +186,18 @@ Return in this format:
 ```
 "Mine the project's history and artifacts for architecture decisions to generate ADRs.
 
+IMPORTANT: Before searching for new decisions, read any EXISTING ADRs that have already been
+centralized into docs/adr/ (from a prior MIGRATE phase) or found scattered in the repo.
+List them first so you do NOT duplicate decisions already captured.
+
 Search these sources in order:
+
+0. EXISTING ADRs — Read first to avoid duplication:
+   - docs/adr/*.md (already centralized)
+   - adr/, adrs/, decisions/ directories anywhere in the repo
+   - Files named ADR-*.md, adr-*.md, or NNNN-*.md
+   - doc/adr/, doc/decisions/ directories
+   Record each existing ADR's title and core decision so you can skip duplicates below.
 
 1. GIT HISTORY — Run these commands and analyze the output:
    - git log --oneline --all -100 (recent history)
@@ -200,7 +211,7 @@ Search these sources in order:
    - docs/ or doc/ directories with design documents, RFCs, proposals
    - ARCHITECTURE.md, DESIGN.md, or similar files
    - Plan files (*.plan, plan-*.md, *-plan.md, RFC-*.md)
-   - ADR directories (adr/, decisions/, doc/adr/)
+   - docs/plans/ directory (superplan output)
    - TODO.md, ROADMAP.md (may reference past decisions)
 
 3. CODE COMMENTS — Grep for decision rationale:
@@ -220,7 +231,13 @@ Search these sources in order:
 
 Return in this format:
 
-## Decisions Found
+## Existing ADRs (already captured — DO NOT duplicate)
+| # | Title | Location | Status |
+|---|-------|----------|--------|
+| 0001 | [title] | docs/adr/0001-slug.md | Accepted |
+| ... | ... | ... | ... |
+
+## New Decisions Found (not yet captured in any ADR)
 
 ### From Git History
 | Decision | Evidence (commit SHA + message) | Approx Date | Confidence |
@@ -242,9 +259,11 @@ Return in this format:
 |----------|----------|------------|
 | description | what in the code suggests this | High/Medium/Low |
 
-## ADR Candidates (ordered by significance)
+## ADR Candidates (NEW only — ordered by significance)
 1. ADR title — brief summary, primary source
 2. ...
+
+Note: Only list decisions NOT already covered by existing ADRs.
 "
 ```
 
