@@ -541,7 +541,7 @@ RETURN FORMAT (JSON)
 Every sub-agent prompt MUST include:
 
 - [ ] Which phase to implement (exact phase ID: "Phase 1A")
-- [ ] Path to plan file (exact path: "docs/plans/NNN-feature/plan.md")
+- [ ] Path to plan file (exact path: "docs/superplan/YYYY-mm-dd-feature-short-name/plan.md")
 - [ ] Instruction to follow 5-step TDD micro-structure
 - [ ] Instruction to run quality gates
 - [ ] Instruction to update plan document

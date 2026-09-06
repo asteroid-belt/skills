@@ -2,7 +2,7 @@
 name: superbuild
 description: Use when executing implementation plans phase-by-phase with strict enforcement of quality gates, tests, and Definition of Done. Triggers on "build this plan", "execute plan", "implement phases", or when user provides a plan document to execute.
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   author: skulto
 compatibility: Requires plan document in superplan format. Works with any codebase with quality tools configured.
 ---
@@ -64,6 +64,8 @@ Superbuild is a **rigid execution engine** for implementation plans. It enforces
 │         ↓          │  ⚠️  THIS HAPPENS AFTER EVERY PHASE            │
 │  6. COMMIT MSG     │  Generate conventional commit (NEVER git ops)  │
 │         ↓          │  User handles all git operations               │
+│  6.5 UPDATE REPORT │  Record verified phase outcome for resumption  │
+│         ↓          │                                                  │
 │  7. FUNCTIONAL TEST│  Explain how to test. Offer integration script │
 │         ↓          │  NEVER auto-create scripts. ALWAYS ask first   │
 │  8. STOP           │  Full stop. Suggest compact. Wait for user.    │
@@ -72,7 +74,7 @@ Superbuild is a **rigid execution engine** for implementation plans. It enforces
 │                    │  Parse focus from CHECKPOINT, compact, continue│
 │                                                                     │
 │  ════════════════════════════════════════════════════════════════   │
-│  Steps 3-8 repeat for EACH PHASE. Plan updates after EVERY phase.  │
+│  Steps 3-8 repeat for EACH PHASE. Plan and report update each phase.│
 │  BUILD-ALL: Steps 3-9 repeat automatically with auto-compact.       │
 │  ════════════════════════════════════════════════════════════════   │
 │                                                                     │
@@ -100,7 +102,7 @@ This confirms the plan is in the expected format with:
 I'll help you execute your implementation plan.
 
 Please provide the plan document:
-1. Path to plan file (e.g., docs/plans/001-feature/plan.md)
+1. Path to plan file (e.g., docs/superplan/YYYY-mm-dd-feature-short-name/plan.md)
 2. Paste the plan content directly
 
 Which would you prefer?
@@ -358,6 +360,41 @@ The plan now reflects Phase [X] completion.
 - Creates audit trail in git history
 
 **DO NOT SKIP THIS STEP.** If you find yourself generating a commit message without updating the plan first, STOP and update the plan.
+
+## Step 6.5: Update Execution Report (EVERY PHASE)
+
+Create a dedicated execution report before the first phase completes, then update it after every verified phase. This preserves execution history without mixing build-specific notes into the Superplan document.
+
+### Report Location
+
+Save the report to:
+
+`docs/superbuild/YYYY-mm-dd-feature-short-name/execution-report.md`
+
+Use the execution start date for `YYYY-mm-dd` and the same feature slug as the input plan. Reuse this directory and report when resuming the same build.
+
+### Report Format
+
+```markdown
+# Superbuild Execution Report: [Feature Name]
+
+**Plan**: `docs/superplan/YYYY-mm-dd-feature-short-name/plan.md`
+**Started**: [YYYY-mm-dd]
+**Last Updated**: [YYYY-mm-dd]
+**Status**: [in progress / complete / blocked]
+
+## Verified Phases
+
+| Phase | Status | Tests | Linter | Formatter | Type Checker | Commit Message |
+|-------|--------|-------|--------|-----------|--------------|----------------|
+| [X] | complete | pass | pass | pass | pass | `[type](scope): summary` |
+
+## Resume From
+
+[Next phase or blocker, with any required context]
+```
+
+Only record a phase as complete after its quality gates pass, the source plan has been updated, and Superbuild has generated its commit-message recommendation. When a phase is blocked, record the blocker and the next required action instead.
 
 ## Step 6: Generate Conventional Commit
 
