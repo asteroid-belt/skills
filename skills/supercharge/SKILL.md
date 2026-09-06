@@ -2,7 +2,7 @@
 name: supercharge
 description: Weekly codebase hygiene skill that identifies and fixes AI-generated code problems ("slop") using Martin Fowler's refactoring techniques. Scans for 15 common issues, prioritizes by severity, and generates superplan-compatible plans for systematic improvement.
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   generated-at: "2026-02-05"
 compatibility: Works with any codebase. Stack auto-detected. Integrates with superplan and superbuild.
 license: MIT
@@ -52,6 +52,20 @@ Supercharge systematically identifies and fixes "AI slop" - the verbose, repetit
 ---
 
 ## Core Workflow
+
+## Session Artifact Location
+
+Keep every artifact produced by a Supercharge session together in a date-stamped directory:
+
+`docs/supercharge/YYYY-mm-dd/`
+
+Use these filenames within that directory:
+
+- `refactoring-plan.md` for the Phase 4 plan
+- `session-state.md` when the work spans multiple sessions
+- `report.md` for the Phase 7 hygiene report
+
+Create the directory before writing the first artifact. Use the session's current date for `YYYY-mm-dd` and reuse that directory when resuming the same session.
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -477,10 +491,10 @@ Generate a superplan-compatible plan with:
 REFACTORING PLAN READY
 ━━━━━━━━━━━━━━━━━━━━━━
 
-Plan saved to: docs/supercharge-[date]-plan.md
+Plan saved to: docs/supercharge/YYYY-mm-dd/refactoring-plan.md
 
 Options:
-1. Execute now with `/superbuild docs/supercharge-[date]-plan.md`
+1. Execute now with `/superbuild docs/supercharge/YYYY-mm-dd/refactoring-plan.md`
 2. Continue execution in this session
 3. Review plan first
 
@@ -492,7 +506,7 @@ Which option?
 After plan generation, run context compaction before execution:
 
 ```text
-/compact focus on: Phase 4 complete, refactoring plan saved to docs/supercharge-[date]-plan.md, [N] refactorings planned across [M] phases, Phase 5 begins execution
+/compact focus on: Phase 4 complete, refactoring plan saved to docs/supercharge/YYYY-mm-dd/refactoring-plan.md, [N] refactorings planned across [M] phases, Phase 5 begins execution
 ```
 
 ---
@@ -795,7 +809,7 @@ After verification complete, run context compaction before reporting:
 
 ### Save Location
 
-Save report to: `docs/supercharge-reports/[YYYY-MM-DD]-report.md`
+Save report to: `docs/supercharge/YYYY-mm-dd/report.md`
 
 ### Report Output
 
@@ -814,7 +828,7 @@ Fixed by Severity:
   MEDIUM:    8/12 (67%)
   LOW:       0/5 (0%)
 
-Report saved: docs/supercharge-reports/2026-02-05-report.md
+Report saved: docs/supercharge/2026-02-05/report.md
 
 Recommended next session focus:
   1. src/services/userService.ts (4 remaining issues)
@@ -866,14 +880,14 @@ Supercharge generates plans compatible with `/superbuild`:
 
 1. Run `/supercharge` to scan and plan
 2. Review the generated plan
-3. Run `/superbuild docs/supercharge-[date]-plan.md` to execute
+3. Run `/superbuild docs/supercharge/YYYY-mm-dd/refactoring-plan.md` to execute
 4. Or continue execution in the same session
 
 ---
 
 ## Session State Tracking
 
-For multi-session supercharge runs, track progress in `docs/supercharge-state.md`:
+For multi-session supercharge runs, track progress in `docs/supercharge/YYYY-mm-dd/session-state.md`:
 
 ```markdown
 # Supercharge Session State
@@ -889,7 +903,7 @@ Phase 5: EXECUTE (in progress)
 - [x] Phase 1: DETECT - Stack identified (TypeScript, React, Jest)
 - [x] Phase 2: SCAN - 27 issues found
 - [x] Phase 3: PRIORITIZE - 3 critical, 7 high, 12 medium, 5 low
-- [x] Phase 4: PLAN - Plan saved to docs/supercharge-2026-02-05-plan.md
+- [x] Phase 4: PLAN - Plan saved to docs/supercharge/2026-02-05/refactoring-plan.md
 - [ ] Phase 5: EXECUTE - 12/18 refactorings complete
 - [ ] Phase 6: VERIFY
 - [ ] Phase 7: REPORT
