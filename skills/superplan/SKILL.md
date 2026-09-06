@@ -2,7 +2,7 @@
 name: superplan
 description: Use when starting significant features, epics, or complex tasks. Creates multi-phase implementation plans with parallelizable phases, poker estimates, TDD-first acceptance criteria, and quality gates. Detects tech stack from CLAUDE.md/AGENTS.md (bypassing internet research if complete) or via codebase scan.
 metadata:
-  version: "3.0"
+  version: "3.1"
   generated-at: "2025-01-25"
 compatibility: Internet access used for best practices research (bypassed if CLAUDE.md/AGENTS.md provides complete tech stack). Works with any codebase.
 ---
@@ -36,7 +36,7 @@ Superplan creates detailed, executable implementation plans that enable parallel
 │  8. PHASE           →  Break into parallelizable phases + ESTIMATES │
 │  9. DETAIL          →  Specify code deltas per phase                │
 │ 10. TEST            →  Define failing tests per phase (TDD)         │
-│ 11. DOCUMENT        →  Write plan to plans/NNN-feature/plan.md │
+│ 11. DOCUMENT        →  Write plan to docs/superplan/YYYY-mm-dd-feature-short-name/plan.md │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -332,34 +332,28 @@ Files changed:
 
 ### Directory Naming Convention
 
-Plans live in numbered subdirectories under `plans/`:
+Plans live in date-stamped feature directories under `docs/superplan/`:
 
 ```
-plans/
-  001-auth-system/
+docs/superplan/
+  YYYY-mm-dd-auth-system/
     plan.md
-  002-user-dashboard/
+  YYYY-mm-dd-user-dashboard/
     plan.md
-  003-api-caching/
+  YYYY-mm-dd-api-caching/
     plan-1.md        # Large plan split across files
     plan-2.md
 ```
 
-**To determine the next number:**
-1. List existing directories in `plans/`
-2. Find the highest NNN prefix
-3. Increment by 1, zero-padded to 3 digits
-4. If no `plans/` exists, start at `001`
-
-**Slug format:** lowercase, hyphen-separated short name (e.g., `001-auth-system`, `002-add-search`)
+Use the current date for `YYYY-mm-dd`, followed by a lowercase, hyphen-separated feature slug (for example, `2026-09-06-auth-system`). If a directory for the same date and slug already exists, choose a more specific slug; do not add a numeric sequence.
 
 ### Write the Plan
 
 ```bash
-mkdir -p plans/NNN-feature-short-name/
+mkdir -p docs/superplan/YYYY-mm-dd-feature-short-name/
 ```
 
-Write the complete plan to `plans/NNN-feature-short-name/plan.md`.
+Write the complete plan to `docs/superplan/YYYY-mm-dd-feature-short-name/plan.md`.
 
 > **STOP. Read [Plan Template](references/PLAN-TEMPLATE.md) NOW** for complete structure before writing.
 
@@ -368,16 +362,16 @@ Write the complete plan to `plans/NNN-feature-short-name/plan.md`.
 After saving, present options:
 
 ```
-PLAN COMPLETE: plans/NNN-feature-short-name/plan.md
+PLAN COMPLETE: docs/superplan/YYYY-mm-dd-feature-short-name/plan.md
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 EXECUTION OPTIONS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Option 1: Execute Now (This Session)
-  Run `/superbuild plans/NNN-feature-short-name/plan.md`
+  Run `/superbuild docs/superplan/YYYY-mm-dd-feature-short-name/plan.md`
 
 Option 2: Execute in Fresh Session
-  Start new session and run `/superbuild plans/NNN-feature-short-name/plan.md`
+  Start new session and run `/superbuild docs/superplan/YYYY-mm-dd-feature-short-name/plan.md`
 
 Option 3: Review First
   Read through the plan, suggest modifications, then execute

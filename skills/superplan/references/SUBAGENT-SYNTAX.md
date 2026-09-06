@@ -43,7 +43,7 @@ When executing parallelizable phases (e.g., 1A, 1B, 1C):
 
 ```
 Task (subagent_type: general-purpose):
-"Implement Phase 1A from plans/NNN-feature/plan.md.
+"Implement Phase 1A from docs/superplan/YYYY-mm-dd-feature-short-name/plan.md.
 
 Instructions:
 1. Read the Phase 1A section of the plan
@@ -51,11 +51,11 @@ Instructions:
 3. Run quality gates (lint, typecheck, test) before completing
 4. Return conventional commit message when complete
 
-Plan location: plans/NNN-feature/plan.md
+Plan location: docs/superplan/YYYY-mm-dd-feature-short-name/plan.md
 Phase: 1A"
 
 Task (subagent_type: general-purpose):
-"Implement Phase 1B from plans/NNN-feature/plan.md.
+"Implement Phase 1B from docs/superplan/YYYY-mm-dd-feature-short-name/plan.md.
 
 Instructions:
 1. Read the Phase 1B section of the plan
@@ -63,11 +63,11 @@ Instructions:
 3. Run quality gates (lint, typecheck, test) before completing
 4. Return conventional commit message when complete
 
-Plan location: plans/NNN-feature/plan.md
+Plan location: docs/superplan/YYYY-mm-dd-feature-short-name/plan.md
 Phase: 1B"
 
 Task (subagent_type: general-purpose):
-"Implement Phase 1C from plans/NNN-feature/plan.md.
+"Implement Phase 1C from docs/superplan/YYYY-mm-dd-feature-short-name/plan.md.
 
 Instructions:
 1. Read the Phase 1C section of the plan
@@ -75,7 +75,7 @@ Instructions:
 3. Run quality gates (lint, typecheck, test) before completing
 4. Return conventional commit message when complete
 
-Plan location: plans/NNN-feature/plan.md
+Plan location: docs/superplan/YYYY-mm-dd-feature-short-name/plan.md
 Phase: 1C"
 ```
 
@@ -86,7 +86,7 @@ Phase: 1C"
 Every sub-agent prompt MUST include:
 
 - [ ] Which phase to implement (exact phase ID: "Phase 1A")
-- [ ] Path to plan file (exact path: "plans/NNN-feature/plan.md")
+- [ ] Path to plan file (exact path: "docs/superplan/YYYY-mm-dd-feature-short-name/plan.md")
 - [ ] Instruction to follow TDD micro-structure
 - [ ] Instruction to run quality gates
 - [ ] Instruction to return conventional commit message

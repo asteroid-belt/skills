@@ -90,7 +90,7 @@ Analyze the existing codebase:
 
 ### Step 6: Create Plan
 
-Write the plan to `plans/NNN-feature-short-name/plan.md`.
+Write the plan to `docs/superplan/YYYY-mm-dd-feature-short-name/plan.md`.
 
 **Include in every plan:**
 - Technology Stack section (from DETECT phase)
@@ -102,9 +102,9 @@ Write the plan to `plans/NNN-feature-short-name/plan.md`.
 - Include Phase 0: Bootstrap before implementation phases
 
 **For large plans exceeding ~20,000 tokens**, split into multiple files within the same directory:
-- `plans/NNN-feature/plan-1.md` - Overview, Requirements, Architecture
-- `plans/NNN-feature/plan-2.md` - Phase 0 and parallelizable phases
-- `plans/NNN-feature/plan-N.md` - Remaining phases, Appendix
+- `docs/superplan/YYYY-mm-dd-feature-short-name/plan-1.md` - Overview, Requirements, Architecture
+- `docs/superplan/YYYY-mm-dd-feature-short-name/plan-2.md` - Phase 0 and parallelizable phases
+- `docs/superplan/YYYY-mm-dd-feature-short-name/plan-N.md` - Remaining phases, Appendix
 
 See [PLAN-TEMPLATE.md](PLAN-TEMPLATE.md) for the complete plan structure.
 
@@ -115,7 +115,7 @@ Ask the user to review and provide feedback:
 ```
 The implementation plan is ready for review.
 
-Location: plans/NNN-feature/plan.md
+Location: docs/superplan/YYYY-mm-dd-feature-short-name/plan.md
 Phases: X total (Y parallelizable)
 
 Please review and let me know:
@@ -226,7 +226,7 @@ Each phase includes Definition of Done (quality gates).
 
 ```
 PLAN WRITTEN
-- Location: plans/NNN-feature/plan.md (or plan-*.md if split)
+- Location: docs/superplan/YYYY-mm-dd-feature-short-name/plan.md (or plan-*.md if split)
 - Files: [1 | N files if split]
 - Total phases: [N]
 - Total estimate: [Sum] points
